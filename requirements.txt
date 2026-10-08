@@ -1,0 +1,7 @@
+# Tested with Python 3.10; torch 2.1.0 (CPU) and 2.4.0 (GPU).
+torch>=2.1
+numpy==1.26.4
+scipy==1.14.1
+matplotlib==3.9.3
+tqdm==4.67.1
+gin-config==0.5.0

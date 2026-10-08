@@ -1,0 +1,44 @@
+# Main paper, Table 1 (linear Gaussian SSM).
+# Linear Gaussian SSM: 4-d damped block rotation (theta = 0.3, 0.5), Ce = 0.1 I,
+# full-state observations, bootstrap proposal, SMNR = 10 dB.
+# Hard systematic resampling (g_rep only).
+
+SMNR_DB = 10
+
+
+# ------------------------------
+# Architecture
+# ------------------------------
+LinearTransitionModel:
+    state_dim = 4
+
+
+# ------------------------------
+# Dataset
+# ------------------------------
+LinearSSMRotationalDataset:
+    num_samples = 1000
+    signal_length = 100
+    smnr_db = %SMNR_DB
+
+get_dataloader:
+    num_workers = 1
+    shuffle = True
+
+
+# ------------------------------
+# Training loop
+# ------------------------------
+TrainingLoop:
+    proposal_model = None
+    transition_model = @LinearTransitionModel
+    dataset_cls = @LinearSSMRotationalDataset
+    test_dataset_cls = @LinearSSMRotationalTestDataset
+    num_particles = 25
+    num_epochs = 500
+    learning_rate = 1e-3
+    batch_size = 64
+    weight_decay = 0.0
+    state_dim = 4
+    smnr_db = %SMNR_DB
+    resampling_method = 'hard_ignore_grad'

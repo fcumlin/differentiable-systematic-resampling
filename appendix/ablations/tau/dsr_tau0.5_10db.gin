@@ -1,0 +1,52 @@
+# Appendix, ablation of tau (tau = 0.1 is configs/lorenz63/dsr_10db.gin).
+# Lorenz-63 with the 8x8 camera observation map, SMNR = 10 dB.
+# DSR (tau = 0.5, Morton sorting).
+
+SMNR_DB = 10
+
+
+# ------------------------------
+# Architecture
+# ------------------------------
+TransitionModel:
+    input_dim = 3
+    hidden_dim = 32
+
+ProposalModel:
+    input_dim = 3
+    y_dim = 64
+    hidden_dim = 32
+
+
+# ------------------------------
+# Dataset
+# ------------------------------
+LorenzAttractor:
+    num_samples = 1000
+    signal_length = 100
+    smnr_db = %SMNR_DB
+    observation_dim = 64
+
+get_dataloader:
+    num_workers = 1
+    shuffle = True
+
+
+# ------------------------------
+# Training loop
+# ------------------------------
+TrainingLoop:
+    proposal_model = @ProposalModel
+    transition_model = @TransitionModel
+    dataset_cls = @LorenzAttractor
+    test_dataset_cls = @LorenzAttractorTest
+    num_particles = 25
+    num_epochs = 500
+    learning_rate = 5e-4
+    batch_size = 64
+    weight_decay = 0.0
+    state_dim = 3
+    smnr_db = %SMNR_DB
+    resampling_method = 'systematic_morton'
+    systematic_tau = 0.5
+    morton_bits = 20

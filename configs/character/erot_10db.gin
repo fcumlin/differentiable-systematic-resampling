@@ -1,0 +1,52 @@
+# Main paper, Table 3 (CharacterTrajectories).
+# CharacterTrajectories, 9-d augmented state, SMNR = 10 dB.
+# EROT (eps = 0.5, 100 Sinkhorn iterations).
+
+SMNR_DB = 10
+state_dimension = 9
+
+
+# ------------------------------
+# Architecture
+# ------------------------------
+TransitionModel:
+    input_dim = %state_dimension
+    hidden_dim = 32
+
+ProposalModel:
+    input_dim = %state_dimension
+    hidden_dim = 32
+    y_dim = 3
+
+
+# ------------------------------
+# Dataset
+# ------------------------------
+CharacterTrajectoriesDataset:
+    num_samples = 1000
+    signal_length = 178
+    smnr_db = %SMNR_DB
+
+get_dataloader:
+    num_workers = 1
+    shuffle = True
+
+
+# ------------------------------
+# Training loop
+# ------------------------------
+TrainingLoop:
+    proposal_model = @ProposalModel
+    transition_model = @TransitionModel
+    dataset_cls = @CharacterTrajectoriesDataset
+    test_dataset_cls = @CharacterTrajectoriesTestDataset
+    num_particles = 25
+    num_epochs = 500
+    learning_rate = 1e-3
+    batch_size = 64
+    weight_decay = 0.0
+    state_dim = %state_dimension
+    real_dataset = True
+    smnr_db = %SMNR_DB
+    resampling_method = 'ot'
+    ot_eps = 0.5
