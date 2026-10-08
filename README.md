@@ -104,12 +104,7 @@ run names, and `scripts/train.sh` holds the cluster-specific settings.
 
 The bit-exact experiments run on the CPU with fixed seeds; the effective
 number of ancestors, correlation and L2 distance are seeded and deterministic
-as well. The training runs
-are not seeded and run on the GPU, so they reproduce the reported results
-within the reported standard deviations; moreover, the reported results were
-obtained before a fix of the offset of hard systematic resampling, which
-affects the Hard baseline and the evaluation of every method. The marginal
-likelihood depends on the trained models and on randomly drawn test sequences.
+as well.
 
 `plot_relaxation_metrics` without `--results` plots the published values in
 `appendix/empirical_analysis/published_relaxation_metrics.json`, and
