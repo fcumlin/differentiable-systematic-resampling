@@ -11,8 +11,8 @@ Fredrik Cumlin · Saikat Chatterjee
 
 <img src="figures/transport_maps.png" width="760" alt="Transport plans of hard systematic resampling, DSR and EROT">
 
-*Transport plans of hard systematic resampling (left), DSR with τ = 0.1
-(middle) and EROT (right) for a particle filter of Lorenz-63 with N = 25
+*Transport plans of hard systematic resampling (left), DSR with $\tau = 0.1$
+(middle) and EROT (right) for a particle filter of Lorenz-63 with $N = 25$
 particles. DSR preserves the banded, CDF-ordered structure of systematic
 resampling.*
 
@@ -67,7 +67,7 @@ Every experiment is a gin config: the main experiments are
 `configs/<dataset>/<method>_<smnr>.gin` and the ablations are
 `appendix/ablations/<study>/<name>.gin`, with the methods `hard` (hard
 systematic resampling), `soft`, `erot` and `dsr`. A single run is trained, and
-the runs of a configuration are summarized as mean ± sample standard
+the runs of a configuration are summarized as mean $\pm$ sample standard
 deviation, with
 
 ```bash
@@ -94,16 +94,16 @@ run names, and `scripts/train.sh` holds the cluster-specific settings.
 
 | Result | Command | Bit-exact |
 |---|---|:---:|
-| Transport plans for every τ | `python -m appendix.empirical_analysis.transport_maps` | ✓ |
-| Effective number of ancestors, correlation, L2 distance | `python -m appendix.empirical_analysis.relaxation_metrics --output relaxation_metrics.json`, then `python -m appendix.empirical_analysis.plot_relaxation_metrics --results relaxation_metrics.json` | |
+| Transport plans for every $\tau$ | `python -m appendix.empirical_analysis.transport_maps` | ✓ |
+| Effective number of ancestors, correlation, $L_2$ distance | `python -m appendix.empirical_analysis.relaxation_metrics --output relaxation_metrics.json`, then `python -m appendix.empirical_analysis.plot_relaxation_metrics --results relaxation_metrics.json` | |
 | Bias and variance of DSR estimates | `python -m appendix.dsr_bias_variance` | ✓ |
-| Ablations (τ, N, sorting, annealing, EROT ε) | `bash scripts/run_paper.sh appendix/ablations/*/*.gin` | |
+| Ablations ($\tau$, $N$, sorting, annealing, EROT $\varepsilon$) | `bash scripts/run_paper.sh appendix/ablations/*/*.gin` | |
 | Inter-modal mass | `python -m appendix.intermodal_mass` | ✓ |
 | Marginal likelihood | `python -m appendix.marginal_likelihood --runs DSR=runs/linear/dsr_10db,...` | |
 | Comparison against unbiased VSMC gradients | `python -m appendix.vsmc_gradient_bias` | ✓ |
 
 The bit-exact experiments run on the CPU with fixed seeds; the effective
-number of ancestors, correlation and L2 distance are seeded and deterministic
+number of ancestors, correlation and $L_2$ distance are seeded and deterministic
 as well.
 
 `plot_relaxation_metrics` without `--results` plots the published values in
