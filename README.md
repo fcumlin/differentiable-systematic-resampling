@@ -2,7 +2,7 @@
 
 # Differentiable Systematic Resampling for Variational Sequential Monte Carlo
 
-Fredrik Cumlin · Saikat Chatterjee
+Fredrik Cumlin, Saikat Chatterjee
 
 [![NeurIPS 2026](https://img.shields.io/badge/NeurIPS-2026-4b44ce)](#citation)
 [![Python 3.10](https://img.shields.io/badge/python-3.10-3776ab?logo=python&logoColor=white)](requirements.txt)
@@ -20,11 +20,7 @@ preserves the banded, CDF-ordered structure of systematic resampling.*
 
 ## DSR
 
-Systematic resampling draws a single offset $u_0 \sim \mathcal{U}(0, 1/N)$,
-places the comb $u_j = u_0 + (j-1)/N$, and assigns particle $j$ the ancestor
-$a_j$ for which $F_{a_j-1} < u_j \leq F_{a_j}$, where $F$ is the CDF of the
-weights. This assignment is discrete and blocks gradient flow. DSR relaxes the
-indicator with sigmoids and leaves the draw of $u_0$ untouched:
+Systematic resampling draws a single offset $u_0 \sim \mathcal{U}(0, 1/N)$, places the comb $u_j = u_0 + (j-1)/N$, and assigns particle $j$ the ancestor $a_j$ for which $F_{a_j-1} < u_j \leq F_{a_j}$, where $F$ is the CDF of the weights. This assignment is discrete and blocks gradient flow. DSR relaxes the indicator with sigmoids and leaves the draw of $u_0$ untouched:
 
 $$
 s_i(u; \tau) = \sigma\left(\frac{u - F_{i-1}}{\tau}\right) - \sigma\left(\frac{u - F_i}{\tau}\right), \qquad
@@ -32,12 +28,7 @@ T_{ij} = \frac{s_i(u_j; \tau)}{\sum_k s_k(u_j; \tau)}, \qquad
 \tilde{x}_j = \sum_i T_{ij} x_i.
 $$
 
-DSR converges to systematic resampling as $\tau \to 0^+$. Before the CDF is
-formed, the particles are sorted along a Morton space-filling curve, so that
-neighbours in the CDF are also neighbours in state space (within each bit
-plane, coordinate 0 is the most significant). We use $\tau = 0.1$ throughout.
-In training, the gradient with respect to $T$ is clamped elementwise to
-$[-1, 1]$, as in the EROT implementation of Corenflos et al. (2021).
+DSR converges to systematic resampling as $\tau \to 0^+$. Before the CDF is formed, the particles are sorted along a Morton space-filling curve, so that neighbours in the CDF are also neighbours in state space (within each bit plane, coordinate 0 is the most significant). We use $\tau = 0.1$ throughout. In training, the gradient with respect to $T$ is clamped elementwise to $[-1, 1]$, as in the EROT implementation of Corenflos et al. (2021).
 
 ```python
 import torch
@@ -53,8 +44,7 @@ new_particles, new_weights = resampling.resampler_systematic_morton(
 
 ## Setup
 
-The code was tested with Python 3.10. Install the dependencies and download
-the CharacterTrajectories data (UCI) to `data/` with
+The code was tested with Python 3.10. Install the dependencies and download the CharacterTrajectories data (UCI) to `data/` with
 
 ```bash
 pip install -r requirements.txt
@@ -65,57 +55,41 @@ All commands are run from the repository root.
 
 ## Training
 
-Every experiment is a gin config: the main experiments are
-`configs/<dataset>/<method>_<smnr>.gin` and the ablations are
-`appendix/ablations/<study>/<name>.gin`, with the methods `hard` (hard
-systematic resampling), `soft`, `erot` and `dsr`. A single run is trained, and
-the runs of a configuration are summarized as mean $\pm$ sample standard
-deviation, with
+Every experiment is a gin config: the main experiments are `configs/<dataset>/<method>_<smnr>.gin` and the ablations are `appendix/ablations/<study>/<name>.gin`, with the methods `hard` (hard systematic resampling), `soft`, `erot` and `dsr`. A single run is trained, and the runs of a configuration are summarized as mean $\pm$ sample standard deviation, with
 
 ```bash
 python train.py --gin_path configs/lorenz63/dsr_10db.gin --save_path runs/lorenz63/dsr_10db_0
 python analysis/summarize_runs.py runs/lorenz63/dsr_10db --num_runs 10
 ```
 
-On a Slurm cluster, `bash scripts/run_paper.sh` submits every configuration
-with 10 runs each; `NUM_RUNS` and `PREFIX` change the number of runs and the
-run names, and `scripts/train.sh` holds the cluster-specific settings. New
-runs are seeded with their run index (`--seed`); the published runs were
-unseeded.
+On a Slurm cluster, `bash scripts/run_paper.sh` submits every configuration with 10 runs each; `NUM_RUNS` and `PREFIX` change the number of runs and the run names, and `scripts/train.sh` holds the cluster-specific settings. New runs are seeded with their run index (`--seed`); the published runs were unseeded.
 
 ## Reproducing the results
 
 **Main paper**
 
-| Result | Command | Bit-exact |
-|---|---|:---:|
-| Linear Gaussian SSM, Lorenz-63 and CharacterTrajectories, training time | `bash scripts/run_paper.sh configs/*/*.gin`, then `analysis/summarize_runs.py` | |
-| Training-time posterior (KLD KF, corrected metric) from the saved checkpoints | `python analysis/posterior_kl.py runs/linear/hard_10db runs/linear/soft_10db runs/linear/erot_10db runs/linear/dsr_10db --num_runs 3` | |
-| Gradient norms (Table 3, Fig. 3; `--experiments` for Table 8) | `python analysis/read_gradient_norms.py` | |
-| Transport plans (Fig. 1) | `python -m appendix.empirical_analysis.transport_maps --taus 0.1` | ✓ |
-| Lorenz-63 and CharacterTrajectories figures | `python analysis/visualize_lorenz.py`, `python analysis/visualize_character.py` | |
-| CharacterTrajectories recordings used for training and evaluation | `python analysis/character_windows.py` | ✓ |
+| Result | Command |
+|---|---|
+| Linear Gaussian SSM, Lorenz-63 and CharacterTrajectories, training time | `bash scripts/run_paper.sh configs/*/*.gin`, then `analysis/summarize_runs.py` |
+| Training-time posterior (KLD KF, corrected metric) from the saved checkpoints | `python analysis/posterior_kl.py runs/linear/hard_10db runs/linear/soft_10db runs/linear/erot_10db runs/linear/dsr_10db --num_runs 3` |
+| Gradient norms (Table 3, Fig. 3; `--experiments` for Table 8) | `python analysis/read_gradient_norms.py` |
+| Transport plans (Fig. 1) | `python -m appendix.empirical_analysis.transport_maps --taus 0.1` |
+| Lorenz-63 and CharacterTrajectories figures | `python analysis/visualize_lorenz.py`, `python analysis/visualize_character.py` |
+| CharacterTrajectories recordings used for training and evaluation | `python analysis/character_windows.py` |
 
 **Appendix**
 
-| Result | Command | Bit-exact |
-|---|---|:---:|
-| Transport plans for every $\tau$ | `python -m appendix.empirical_analysis.transport_maps` | ✓ |
-| Effective number of ancestors, $L_2$ distance, weight on the hard ancestor, argmax agreement | `python -m appendix.empirical_analysis.relaxation_metrics --output relaxation_metrics.json`, then `python -m appendix.empirical_analysis.plot_relaxation_metrics --results relaxation_metrics.json` | |
-| Bias and variance of DSR estimates | `python -m appendix.dsr_bias_variance` | ✓ |
-| Ablations ($\tau$, $N$, sorting, annealing, EROT $\varepsilon$) | `bash scripts/run_paper.sh appendix/ablations/*/*.gin` | |
-| Inter-modal mass (`--axis first`, the published table; `last` and `random` separate the modes along other directions) | `python -m appendix.intermodal_mass` | ✓ |
-| Marginal likelihood | `python -m appendix.marginal_likelihood --runs DSR=runs/linear/dsr_10db,...` | |
-| Comparison against unbiased VSMC gradients | `python -m appendix.vsmc_gradient_bias` | ✓ |
+| Result | Command |
+|---|---|
+| Transport plans for every $\tau$ | `python -m appendix.empirical_analysis.transport_maps` |
+| Effective number of ancestors, $L_2$ distance, weight on the hard ancestor, argmax agreement | `python -m appendix.empirical_analysis.relaxation_metrics --output relaxation_metrics.json`, then `python -m appendix.empirical_analysis.plot_relaxation_metrics --results relaxation_metrics.json` |
+| Bias and variance of DSR estimates | `python -m appendix.dsr_bias_variance` |
+| Ablations ($\tau$, $N$, sorting, annealing, EROT $\varepsilon$) | `bash scripts/run_paper.sh appendix/ablations/*/*.gin` |
+| Inter-modal mass (`--axis first`, the published table; `last` and `random` separate the modes along other directions) | `python -m appendix.intermodal_mass` |
+| Marginal likelihood | `python -m appendix.marginal_likelihood --runs DSR=runs/linear/dsr_10db,...` |
+| Comparison against unbiased VSMC gradients | `python -m appendix.vsmc_gradient_bias` |
 
-The bit-exact experiments run on the CPU with fixed seeds; the effective
-number of ancestors, correlation and $L_2$ distance are seeded and deterministic
-as well.
-
-`plot_relaxation_metrics` without `--results` plots the published values in
-`appendix/empirical_analysis/published_relaxation_metrics.json`, and
-`vsmc_gradient_bias`, `dsr_bias_variance` and `marginal_likelihood` have a
-`--self-test` that validates their estimators.
+`plot_relaxation_metrics` without `--results` plots the published values in `appendix/empirical_analysis/published_relaxation_metrics.json`, and `vsmc_gradient_bias`, `dsr_bias_variance` and `marginal_likelihood` have a `--self-test` that validates their estimators.
 
 ## Citation
 
